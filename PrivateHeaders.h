@@ -13,48 +13,60 @@
 //    along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 @interface TURoute : NSObject
-@property (assign,getter=isCurrentlyPicked,nonatomic) BOOL currentlyPicked;
-@property (assign,getter=isSpeaker,nonatomic) BOOL speaker;
+    @property (assign,getter=isCurrentlyPicked,nonatomic) BOOL currentlyPicked;
+    @property (assign,getter=isDefaultRoute,nonatomic) BOOL defaultRoute;
+    @property (nonatomic,copy) NSString * uniqueIdentifier; 
+    @property (assign,getter=isSpeaker,nonatomic) BOOL speaker;
 @end
 
 @interface TURouteController : NSObject
-@property (nonatomic,copy,readonly) NSArray * routes;
-@property (nonatomic,copy,readonly) TURoute * pickedRoute;
-@property (nonatomic,copy,readonly) TURoute * receiverRoute;
-@property (nonatomic,copy,readonly) TURoute * speakerRoute;
+    @property (nonatomic,copy,readonly) NSArray * routes;
+    @property (nonatomic,copy,readonly) TURoute * pickedRoute;
+    @property (nonatomic,copy,readonly) TURoute * receiverRoute;
+    @property (nonatomic,copy,readonly) TURoute * speakerRoute;
 -(void)pickRoute:(id)arg1 ;
 @end
 
 @interface TURouteController (UI)
-@property(readonly, copy, nonatomic) TURoute *routeForSpeakerDisable;
-@property(readonly, copy, nonatomic) TURoute *routeForSpeakerEnable;
+    @property(readonly, copy, nonatomic) TURoute *routeForSpeakerDisable;
+    @property(readonly, copy, nonatomic) TURoute *routeForSpeakerEnable;
 @end
 
 @interface TUCallCenter : NSObject
-@property (nonatomic,retain) TURouteController * routeController;
-+(id)sharedInstance;
-@end
+    @property (nonatomic,retain) TURouteController * routeController;
+    +(TUCallCenter*)sharedInstance;
+    @end
 
 @interface PHCallViewController : UIViewController
 @end
 
 @interface PHAudioCallViewController : PHCallViewController
-- (void)revealAudioRoutingDeviceListAnimated:(BOOL)arg1;
+    - (void)revealAudioRoutingDeviceListAnimated:(BOOL)arg1;
 @end
 
 @interface PHAudioCallControlsView : UIView
-@property(nonatomic) __weak id delegate;
-- (void)setSelectedState:(BOOL)arg1 forControlType:(unsigned long long)arg2;
-- (void)reloadButtonViewStates;
+    @property(nonatomic) __weak id delegate;
+    - (void)setSelectedState:(BOOL)arg1 forControlType:(unsigned long long)arg2;
+    - (void)reloadButtonViewStates;
 @end
 
 @interface PHAudioCallControlsViewController : UIViewController
-@property __weak id delegate;
-@property(retain) PHAudioCallControlsView *controlsView;
+    @property __weak id delegate;
+    @property(retain) PHAudioCallControlsView *controlsView;
 @end
 
 @interface PHAudioControlsButton : UIButton
-@property(nonatomic) unsigned long long controlType;
-@property(nonatomic) __weak id menuDataSource;
-- (void)setSelected:(BOOL)arg1;
+    @property(nonatomic) unsigned long long controlType;
+    @property(nonatomic) __weak id menuDataSource;
+    - (void)setSelected:(BOOL)arg1;
+@end
+
+@interface PHAudioDeviceController
+    + (id)sharedAudioDeviceController;
+    + (id)sharedSystemController;
+    @property(readonly, copy, nonatomic) TURoute *currentRoute;
+    - (void)pickSpeakerRoute;
+    - (void)pickHandsetRoute;
+    - (BOOL)handsetRouteAvailable;
+    - (BOOL)speakerRouteAvailable;    
 @end

@@ -15,35 +15,34 @@
 #import "PrivateHeaders.h"
 
 %hook PHAudioControlsButton
--(void)setContextMenuIsPrimary:(BOOL)primary{
-	if (self.controlType == 3){
+-(void)setContextMenuIsPrimary:(BOOL)primary {
+	if (self.controlType == 3) {
 		%orig(NO);
-		if (![[self actionsForTarget:self forControlEvent:UIControlEventTouchUpInside] containsObject:@"audioRoutesButtonTapped:"]){
+		if (![[self actionsForTarget:self forControlEvent:UIControlEventTouchUpInside] containsObject:@"audioRoutesButtonTapped:"]) {
 			[self removeTarget:nil action:nil forControlEvents:UIControlEventAllEvents];
 			[self addTarget:self action:@selector(audioRoutesButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
 		}
-		return;
 	}
-	%orig(primary);
+	else
+		%orig(primary);
 }
 
 %new
--(void)audioRoutesButtonTapped:(id)sender{
-	if (self.controlType == 3){
-		TUCallCenter *callCenter = [%c(TUCallCenter) sharedInstance];
-		
-		if (!callCenter.routeController.routeForSpeakerEnable && !callCenter.routeController.routeForSpeakerDisable){
-			PHAudioCallViewController *callViewController = ((PHAudioCallControlsViewController *)(((PHAudioCallControlsView *)(self.menuDataSource)).delegate)).delegate;
-			if ([callViewController respondsToSelector:@selector(revealAudioRoutingDeviceListAnimated:)]){
-				[callViewController revealAudioRoutingDeviceListAnimated:YES];
-			}
-			return;
+-(void)audioRoutesButtonTapped:(id)sender {
+	if (self.controlType == 3) {
+		TURouteController *routeControllerShared = [%c(TUCallCenter) sharedInstance].routeController;
+
+		if ([routeControllerShared.pickedRoute.uniqueIdentifier isEqualToString:@"Built-In Receiver"]) {
+			[routeControllerShared pickRoute:routeControllerShared.routeForSpeakerEnable];
 		}
-		
-		if (callCenter.routeController.pickedRoute.speaker){
-			[callCenter.routeController pickRoute:callCenter.routeController.routeForSpeakerDisable];
-		}else{
-			[callCenter.routeController pickRoute:callCenter.routeController.routeForSpeakerEnable];
+		else if ([routeControllerShared.pickedRoute.uniqueIdentifier isEqualToString:@"Speaker"]) {
+			[routeControllerShared pickRoute:routeControllerShared.routeForSpeakerDisable];
+		}
+		else {
+			PHAudioCallViewController *callViewController = ((PHAudioCallControlsViewController *)(((PHAudioCallControlsView *)(self.menuDataSource)).delegate)).delegate;
+			if ([callViewController respondsToSelector:@selector(revealAudioRoutingDeviceListAnimated:)]) {
+				[callViewController revealAudioRoutingDeviceListAnimated:YES];
+			}			
 		}
 	}
 }
